@@ -4,15 +4,44 @@ const { Product, Category, Tag, ProductTag } = require('../../models');
 // The `/api/products` endpoint
 
 // get all products
-router.get('/', (req, res) => {
+router.get('/', (request, response) => {
   // find all products
   // be sure to include its associated Category and Tag data
+  Product.findAll().then(data=>{
+    response.json(data)
+}).catch(error=>{
+    console.log(error);
+    response.status(500).json({
+        msg:"an error occurred",
+        error:error
+    })
+})
 });
 
 // get one product
-router.get('/:id', (req, res) => {
+router.get('/:id', (request, response) => {
   // find a single product by its `id`
   // be sure to include its associated Category and Tag data
+    Product.findByPk(request.params.id,{
+        include:[{
+            model:Category,
+            include:[Product]
+        }]
+    }).then(data=>{
+        if(data){
+           return  response.json(data);
+        } else {
+          response.status(404).json({
+                msg:"no product record"
+            })
+        }
+    }).catch(error=>{
+        console.log(error);
+        response.status(500).json({
+            msg:"an error occurred",
+            eerrorrr:error
+        })
+    })
 });
 
 // create new product
